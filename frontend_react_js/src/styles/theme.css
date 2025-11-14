@@ -1,0 +1,36 @@
+:root {
+  /* Ocean Professional Theme */
+  --color-primary: #1E3A8A;
+  --color-primary-600: #1E40AF;
+  --color-secondary: #F59E0B;
+  --color-success: #059669;
+  --color-error: #DC2626;
+
+  --color-bg: #F3F4F6;         /* background */
+  --color-surface: #FFFFFF;     /* cards/panels */
+  --color-text: #111827;        /* headings/body */
+  --color-text-muted: #6B7280;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.06);
+  --shadow-md: 0 6px 16px rgba(0,0,0,.08);
+  --shadow-lg: 0 14px 28px rgba(0,0,0,.10);
+
+  --focus-ring: 0 0 0 3px rgba(30,58,138,.25);
+
+  --card-gap: 16px;
+}
+
+[data-theme="dark"] {
+  --color-bg: #0f172a;          /* slate-950-ish */
+  --color-surface: #111827;     /* slate-900-ish */
+  --color-text: #F9FAFB;
+  --color-text-muted: #9CA3AF;
+
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.35);
+  --shadow-md: 0 6px 16px rgba(0,0,0,.45);
+  --shadow-lg: 0 14px 28px rgba(0,0,0,.55);
+}

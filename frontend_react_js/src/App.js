@@ -1,48 +1,68 @@
-import React, { useState, useEffect } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect } from 'react';
+import './styles/global.css';
+import './styles/theme.css';
+import Header from './components/Header';
+import CitySearch from './components/CitySearch';
+import TimeCard from './components/TimeCard';
+import ComparisonBar from './components/ComparisonBar';
+import { TimezoneProvider, useTimezoneStore } from './state/store';
 
-// PUBLIC_INTERFACE
-function App() {
-  const [theme, setTheme] = useState('light');
+/**
+ * The main content of the World Time Comparison app rendering the header,
+ * search, time cards, and comparison view.
+ */
+function AppContent() {
+  const { cities, theme, setTheme } = useTimezoneStore();
 
-  // Effect to apply theme to document element
+  // Apply theme to document root for CSS variables
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
-  // PUBLIC_INTERFACE
-  const toggleTheme = () => {
-    setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
+  const onToggleTheme = () => {
+    setTheme(theme === 'light' ? 'dark' : 'light');
   };
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <button 
-          className="theme-toggle" 
-          onClick={toggleTheme}
-          aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-        >
-          {theme === 'light' ? '🌙 Dark' : '☀️ Light'}
-        </button>
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <p>
-          Current theme: <strong>{theme}</strong>
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="wtc-app">
+      <Header onToggleTheme={onToggleTheme} theme={theme} />
+      <main className="wtc-main" role="main">
+        <section className="wtc-toolbar" aria-label="City search and actions">
+          <CitySearch />
+        </section>
+        <section className="wtc-comparison" aria-label="Time difference comparison">
+          <ComparisonBar />
+        </section>
+        <section className="wtc-grid" aria-live="polite" aria-busy="false">
+          {cities.map((tz) => (
+            <TimeCard key={tz} timezone={tz} />
+          ))}
+          {cities.length === 0 && (
+            <div className="wtc-empty" role="note">
+              <p>No cities selected yet. Use the search above to add cities by timezone.</p>
+            </div>
+          )}
+        </section>
+      </main>
+      <footer className="wtc-footer">
+        <small>
+          World Time Comparison — local time is computed with Intl/Date. No external keys required.
+        </small>
+      </footer>
     </div>
+  );
+}
+
+/**
+ * PUBLIC_INTERFACE
+ * App - Root component that wires up global state and renders the UI.
+ * This is the entry point used by index.js.
+ */
+function App() {
+  return (
+    <TimezoneProvider>
+      <AppContent />
+    </TimezoneProvider>
   );
 }
 
