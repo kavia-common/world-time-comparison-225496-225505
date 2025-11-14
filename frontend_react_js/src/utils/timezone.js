@@ -94,26 +94,3 @@ export function getTimezoneAbbr(date, timeZone) {
     return 'UTC';
   }
 }
-
-/**
- * Optional network time fetcher. Used only if REACT_APP_API_BASE is defined.
- * PUBLIC_INTERFACE
- * fetchNetworkTime - returns a Date from API or null on failure.
- * @returns {Promise<Date|null>}
- */
-export async function fetchNetworkTime() {
-  const base = process.env.REACT_APP_API_BASE;
-  if (!base) return null;
-
-  try {
-    const res = await fetch(`${base.replace(/\/$/, '')}/time`, { cache: 'no-store' });
-    if (!res.ok) return null;
-    const data = await res.json();
-    // Expecting { epochMs: number } or { iso: string }
-    if (typeof data.epochMs === 'number') return new Date(data.epochMs);
-    if (typeof data.iso === 'string') return new Date(data.iso);
-    return null;
-  } catch {
-    return null;
-  }
-}

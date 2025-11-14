@@ -5,6 +5,10 @@ const DEFAULT_CITIES = ['UTC', 'Europe/London', 'America/New_York'];
 const initialState = {
   theme: 'light',
   cities: DEFAULT_CITIES,
+  // Whether to prefer network time when available (api-auto)
+  useNetworkTime: true,
+  // 'local' | 'api-auto'
+  clockMode: 'api-auto',
 };
 
 function reducer(state, action) {
@@ -33,6 +37,12 @@ function reducer(state, action) {
       [arr[idx + 1], arr[idx]] = [arr[idx], arr[idx + 1]];
       return { ...state, cities: arr };
     }
+    case 'SET_USE_NETWORK_TIME':
+      return { ...state, useNetworkTime: Boolean(action.payload) };
+    case 'SET_CLOCK_MODE': {
+      const mode = action.payload === 'local' ? 'local' : 'api-auto';
+      return { ...state, clockMode: mode };
+    }
     default:
       return state;
   }
@@ -56,6 +66,12 @@ export function TimezoneProvider({ children }) {
     removeCity: (tz) => dispatch({ type: 'REMOVE_CITY', payload: tz }),
     moveCityUp: (tz) => dispatch({ type: 'MOVE_UP', payload: tz }),
     moveCityDown: (tz) => dispatch({ type: 'MOVE_DOWN', payload: tz }),
+
+    useNetworkTime: state.useNetworkTime,
+    setUseNetworkTime: (v) => dispatch({ type: 'SET_USE_NETWORK_TIME', payload: v }),
+
+    clockMode: state.clockMode,
+    setClockMode: (m) => dispatch({ type: 'SET_CLOCK_MODE', payload: m }),
   }), [state]);
 
   return (

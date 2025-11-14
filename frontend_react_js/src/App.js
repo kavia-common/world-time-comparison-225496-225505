@@ -46,7 +46,7 @@ function AppContent() {
       </main>
       <footer className="wtc-footer">
         <small>
-          World Time Comparison — local time is computed with Intl/Date. No external keys required.
+          World Time Comparison — local time computed with Intl/Date. Optional network time via REACT_APP_API_BASE.
         </small>
       </footer>
     </div>

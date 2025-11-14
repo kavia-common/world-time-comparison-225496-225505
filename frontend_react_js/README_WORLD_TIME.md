@@ -29,7 +29,45 @@ Open http://localhost:3000 to view in the browser.
 
 The app works without any variables. The following are recognized if present:
 
-- `REACT_APP_API_BASE`: If set (e.g., a simple endpoint exposing `/time` returning `{ epochMs }` or `{ iso }`), `utils/timezone.fetchNetworkTime()` can be used to source time from server. The UI currently uses local time by default.
+- `REACT_APP_API_BASE`: If set to a server URL, the app can use a network-backed time endpoint to source current time. The UI includes a "Network Time" toggle in the header. When enabled, the app will call:
+  - `GET ${REACT_APP_API_BASE}/time?tz=<IANA>` for timezone-aware current time, or fall back to `GET ${REACT_APP_API_BASE}/time` if the tz query is not supported.
+
+### Endpoint Contract
+
+Request:
+- Method: GET
+- Path: `/time`
+- Optional Query: `tz` (IANA timezone string), e.g., `tz=Europe/London`
+
+Response (preferred):
+```json
+{
+  "epochMs": 1731609600000,
+  "iso": "2024-11-14T00:00:00.000Z",
+  "tz": "Europe/London",
+  "offsetMinutes": 0
+}
+```
+
+Response (minimal accepted):
+```json
+{ "epochMs": 1731609600000 }
+```
+or
+```json
+{ "iso": "2024-11-14T00:00:00.000Z" }
+```
+
+Notes:
+- If `offsetMinutes` is omitted, the client computes it for the requested `tz`.
+- If `tz` is omitted, the client assumes the requested tz and computes offset with Intl.
+
+### Client Behavior
+
+- When `REACT_APP_API_BASE` is provided and "Network Time" is ON, the app prefers network time (`api-auto` mode).
+- The client implements small retry/backoff and caches the last good value per timezone for ~10s to smooth the UI.
+- If the request fails or the API is unreachable, the app gracefully falls back to local time.
+- A status badge is displayed in the Comparison bar: "Network time", "Network (cached)", or "Local time".
 
 Other variables present in the container:
 - `REACT_APP_BACKEND_URL, REACT_APP_FRONTEND_URL, REACT_APP_WS_URL, REACT_APP_NODE_ENV, REACT_APP_NEXT_TELEMETRY_DISABLED, REACT_APP_ENABLE_SOURCE_MAPS, REACT_APP_PORT, REACT_APP_TRUST_PROXY, REACT_APP_LOG_LEVEL, REACT_APP_HEALTHCHECK_PATH, REACT_APP_FEATURE_FLAGS, REACT_APP_EXPERIMENTS_ENABLED`
@@ -44,6 +82,7 @@ Tip: Create a `.env` (or `.env.local`) with only the variables you need. Do not 
 3. Use the up/down arrows to reorder; the first city acts as the comparison reference.
 4. Remove a city using the ✕ button.
 5. Toggle light/dark theme in the header.
+6. Optional: Toggle "Network Time" in the header to use server-provided time (when `REACT_APP_API_BASE` is set).
 
 ## Preview System Notes
 
@@ -57,6 +96,7 @@ Tip: Create a `.env` (or `.env.local`) with only the variables you need. Do not 
 - Main layout and components styles in `src/styles/global.css`
 - State management via React Context + Reducer in `src/state/store.jsx`
 - Live time updates via `src/hooks/useClock.js`
+- Network time utility in `src/utils/timeService.js`
 
 ## Testing
 

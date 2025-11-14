@@ -11,7 +11,7 @@ import { getOffsetMinutes, getTimezoneAbbr } from '../utils/timezone';
  * @returns React element
  */
 function TimeCard({ timezone }) {
-  const now = useClock(); // updates every second
+  const { now } = useClock(timezone); // updates every second, network-aware
   const { removeCity, moveCityUp, moveCityDown, cities } = useTimezoneStore();
 
   // Formatters per timezone

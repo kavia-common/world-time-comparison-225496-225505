@@ -10,19 +10,20 @@ import { getOffsetMinutes } from '../utils/timezone';
  */
 function ComparisonBar() {
   const { cities } = useTimezoneStore();
-  const now = useClock();
+  // Use reference timezone for the clock baseline to compute offsets consistently
+  const refTz = cities[0] || 'UTC';
+  const { now, source, networkEnabled } = useClock(refTz);
 
   const diffs = useMemo(() => {
     if (cities.length === 0) return [];
-    const baseTz = cities[0];
-    const baseOffset = getOffsetMinutes(now, baseTz);
+    const baseOffset = getOffsetMinutes(now, refTz);
     return cities.map((tz) => {
       const off = getOffsetMinutes(now, tz);
       const deltaMin = off - baseOffset;
       const deltaHours = Math.round((deltaMin / 60) * 10) / 10;
       return { tz, deltaHours };
     });
-  }, [cities, now]);
+  }, [cities, now, refTz]);
 
   if (cities.length <= 1) {
     return (
@@ -36,14 +37,25 @@ function ComparisonBar() {
     );
   }
 
-  const ref = cities[0];
+  const ref = refTz;
+
+  const statusText = networkEnabled
+    ? (source === 'api' ? 'Network time' : source === 'cache' ? 'Network (cached)' : 'Local time')
+    : 'Local time';
+  const statusClass =
+    source === 'api' ? 'wtc-badge'
+      : source === 'cache' ? 'wtc-badge'
+      : 'wtc-badge';
 
   return (
     <div className="wtc-card" aria-label="Comparison summary">
       <div className="wtc-card-header">
         <div className="wtc-card-title">Comparison</div>
-        <div className="wtc-sub">Reference: {ref}</div>
+        <div className="wtc-actions" aria-label="status">
+          <span className={statusClass} title={`Source: ${statusText}`}>{statusText}</span>
+        </div>
       </div>
+      <div className="wtc-sub">Reference: {ref}</div>
       <div className="wtc-diff">
         {diffs.map(({ tz, deltaHours }) => {
           if (tz === ref) {
